@@ -93,13 +93,13 @@
         },
         {
           "type": "archive",
-          "url": "https://github.com/kirbyfan64/qldv/archive/new.tar.gz",
-          "sha256": "756b258b03b11b4f1c08141f65eb21c158528f037c31ede3f0a26dd60d63f57e"
+          "url": "https://github.com/kirbyfan64/qldv/archive/v0.2.tar.gz",
+          "sha256": "7ba604a4493d16b800287cdbd86dd8f545589c97427022b09bcccc1f4946b43e"
         }
       ],
       "build-commands": [
         "mkdir -p usr/flatpak",
-        " PATH=$PATH:/usr/lib/sdk/swift/flatpak ./qldv /lib/ld-linux-x86-64.so.2 usr/flatpak/ld.so",
+        "PATH=$PATH:/usr/lib/sdk/swift/flatpak ./qldv /lib/ld-linux-x86-64.so.2 usr/flatpak/ld.so",
         "find usr/bin -type f -exec /usr/lib/sdk/swift/flatpak/patchelf --set-interpreter /usr/lib/sdk/swift/flatpak/ld.so {} ';'",
         "sed -i 's|x86_64-linux-gnu/||' usr/lib/swift/linux/x86_64/glibc.modulemap",
         "install -d /usr/lib/sdk/swift",
