@@ -1,0 +1,34 @@
+{
+  "app-id": "org.freedesktop.Sdk.Extension.swift.example",
+  "runtime": "org.freedesktop.Platform",
+  "runtime-version": "1.6",
+  "sdk": "org.freedesktop.Sdk",
+  "sdk-extensions": [
+    "org.freedesktop.Sdk.Extension.swift"
+  ],
+  "metadata": "metadata.sdk.test",
+  "command": "/app/bin/sdk-run.sh",
+  "modules": [
+    {
+      "name": "sdk",
+      "buildsystem": "simple",
+      "sources": [
+        {
+          "type": "script",
+          "commands": [
+            "if ! [ -d /usr/lib/sdk/swift ]; then",
+            "  echo 'Swift SDK is missing.'",
+            "  exit 1",
+            "fi",
+            ". /usr/lib/sdk/swift/enable.sh",
+            "[ $# -eq 0 ] && exec sh -i || exec \"$@\""
+          ],
+          "dest-filename": "sdk-run.sh"
+        }
+      ],
+      "build-commands": [
+        "install -Dm 755 sdk-run.sh /app/bin/sdk-run.sh"
+      ]
+    }
+  ]
+}

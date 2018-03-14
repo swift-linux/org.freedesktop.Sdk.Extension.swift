@@ -1,0 +1,158 @@
+{
+  "id": "org.freedesktop.Sdk.Extension.swift",
+  "branch": "1.6",
+  "runtime": "org.freedesktop.Sdk",
+  "build-extension": true,
+  "sdk": "org.freedesktop.Sdk",
+  "runtime-version": "1.6",
+  "sdk-extensions": [],
+  "separate-locales": false,
+  "appstream-compose": false,
+  "cleanup": [
+    "/share/info",
+    "/share/man"
+  ],
+  "modules": [
+    {
+      "name": "libedit",
+      "buildsystem": "simple",
+      "sources": [
+        {
+          "type": "archive",
+          "url": "http://thrysoee.dk/editline/libedit-20170329-3.1.tar.gz",
+          "sha256": "91f2d90fbd2a048ff6dad7131d9a39e690fd8a8fd982a353f1333dd4017dd4be"
+        }
+      ],
+      "build-commands": [
+        "./configure --prefix=/usr/lib/sdk/swift CC=clang",
+        "make -j3",
+        "install -Dm 755 src/.libs/libedit.so.0.0.56 /usr/lib/sdk/swift/flatpak/libedit.so.2"
+      ]
+    },
+    {
+      "name": "patchelf",
+      "buildsystem": "simple",
+      "sources": [
+        {
+          "type": "archive",
+          "url": "https://nixos.org/releases/patchelf/patchelf-0.9/patchelf-0.9.tar.gz",
+          "sha256": "f2aa40a6148cb3b0ca807a1bf836b081793e55ec9e5540a5356d800132be7e0a"
+        }
+      ],
+      "build-commands": [
+        "./configure CC=clang CXX=clang++",
+        "make",
+        "install -Dm 755 src/patchelf /usr/lib/sdk/swift/flatpak/patchelf"
+      ]
+    },
+    {
+      "name": "libbsd",
+      "buildsystem": "simple",
+      "sources": [
+        {
+          "type": "archive",
+          "url": "https://libbsd.freedesktop.org/releases/libbsd-0.8.7.tar.xz",
+          "sha256": "f548f10e5af5a08b1e22889ce84315b1ebe41505b015c9596bad03fd13a12b31"
+        }
+      ],
+      "build-commands": [
+        "./configure CC=clang --disable-static",
+        "make",
+        "install -Dm 755 src/.libs/libbsd.so /usr/lib/sdk/swift/flatpak/libbsd.so.0"
+      ]
+    },
+    {
+      "name": "libicu",
+      "buildsystem": "simple",
+      "sources": [
+        {
+          "type": "archive",
+          "only-arches": [
+            "x86_64"
+          ],
+          "url": "http://download.icu-project.org/files/icu4c/55.1/icu4c-55_1-RHEL6-x64.tgz",
+          "sha256": "a4697dd49a463487bdc49359caa62e224a804f83b2623711fb88b6519e88f323"
+        }
+      ],
+      "build-commands": [
+        "install -d /usr/lib/sdk/swift/flatpak",
+        "cp -pv local/lib/*.so.* /usr/lib/sdk/swift/flatpak"
+      ]
+    },
+    {
+      "name": "swift",
+      "buildsystem": "simple",
+      "sources": [
+        {
+          "type": "archive",
+          "only-arches": [
+            "x86_64"
+          ],
+          "url": "https://swift.org/builds/swift-4.0.3-release/ubuntu1604/swift-4.0.3-RELEASE/swift-4.0.3-RELEASE-ubuntu16.04.tar.gz",
+          "sha256": "9adf64cabc7c02ea2d08f150b449b05e46bd42d6e542bf742b3674f5c37f0dbf"
+        },
+        {
+          "type": "archive",
+          "url": "https://github.com/kirbyfan64/qldv/archive/new.tar.gz",
+          "sha256": "756b258b03b11b4f1c08141f65eb21c158528f037c31ede3f0a26dd60d63f57e"
+        }
+      ],
+      "build-commands": [
+        "mkdir -p usr/flatpak",
+        " PATH=$PATH:/usr/lib/sdk/swift/flatpak ./qldv /lib/ld-linux-x86-64.so.2 usr/flatpak/ld.so",
+        "find usr/bin -type f -exec /usr/lib/sdk/swift/flatpak/patchelf --set-interpreter /usr/lib/sdk/swift/flatpak/ld.so {} ';'",
+        "sed -i 's|x86_64-linux-gnu/||' usr/lib/swift/linux/x86_64/glibc.modulemap",
+        "install -d /usr/lib/sdk/swift",
+        "cp -rpv usr/* /usr/lib/sdk/swift"
+      ]
+    },
+    {
+      "name": "scripts",
+      "sources": [
+        {
+          "type": "script",
+          "commands": [
+            "dir=\"`dirname \"$0\"`\"",
+            "/usr/bin/clang++ \"$@\" && \\",
+            "/usr/lib/sdk/swift/flatpak/patchelf --set-interpreter /usr/lib/sdk/swift/flatpak/ld.so \"${@: -1}\""
+          ],
+          "dest-filename": "clang-wrapper.sh"
+        },
+        {
+          "type": "file",
+          "path": "set-runtime.sh"
+        },
+        {
+          "type": "script",
+          "commands": [
+            "export PATH=$PATH:/usr/lib/sdk/swift/bin",
+            "export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/usr/lib/sdk/swift/flatpak"
+          ],
+          "dest-filename": "enable.sh"
+        }
+      ],
+      "buildsystem": "simple",
+      "build-commands": [
+        "sed -i 's|/bin/sh|/bin/bash|' clang-wrapper.sh",
+        "install -Dm 755 clang-wrapper.sh /usr/lib/sdk/swift/bin/clang++",
+        "install -Dm 755 enable.sh /usr/lib/sdk/swift/",
+        "install -Dm 755 set-runtime.sh /usr/lib/sdk/swift/"
+      ]
+    },
+    {
+      "name": "appdata",
+      "buildsystem": "simple",
+      "build-commands": [
+        "mkdir -p ${FLATPAK_DEST}/share/appdata",
+        "cp org.freedesktop.Sdk.Extension.swift.appdata.xml ${FLATPAK_DEST}/share/appdata",
+        "appstream-compose  --basename=org.freedesktop.Sdk.Extension.swift --prefix=${FLATPAK_DEST} --origin=flatpak org.freedesktop.Sdk.Extension.swift"
+      ],
+      "sources": [
+        {
+          "type": "file",
+          "path": "org.freedesktop.Sdk.Extension.swift.appdata.xml"
+        }
+      ]
+    }
+  ]
+}

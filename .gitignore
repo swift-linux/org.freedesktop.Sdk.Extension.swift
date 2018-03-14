@@ -1,0 +1,5 @@
+.flatpak-builder/
+repo/
+root/
+root.test/
+root.ex/
