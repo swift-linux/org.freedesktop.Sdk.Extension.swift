@@ -1,5 +1,5 @@
 .flatpak-builder/
 repo/
 root/
-root.test/
+root.live/
 root.ex/

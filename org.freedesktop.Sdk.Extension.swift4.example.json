@@ -1,10 +1,10 @@
 {
-  "app-id": "org.freedesktop.Sdk.Extension.swift.example",
+  "app-id": "org.freedesktop.Sdk.Extension.swift4.example",
   "runtime": "org.freedesktop.Platform",
   "runtime-version": "1.6",
   "sdk": "org.freedesktop.Sdk",
   "sdk-extensions": [
-    "org.freedesktop.Sdk.Extension.swift"
+    "org.freedesktop.Sdk.Extension.swift4"
   ],
   "command": "/app/bin/example",
   "modules": [
@@ -20,11 +20,11 @@
         {
           "type": "script",
           "commands": [
-            ". /usr/lib/sdk/swift/enable.sh",
+            ". /usr/lib/sdk/swift4/enable.sh",
             "cd example",
             "swift build -c release",
             "install -Dm 755 .build/release/example /app/bin/example",
-            "/usr/lib/sdk/swift/set-runtime.sh /app/lib /app/bin example"
+            "/usr/lib/sdk/swift4/set-runtime.sh /app/lib /app/bin example"
           ],
           "dest-filename": "build-example.sh"
         }

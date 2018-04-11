@@ -1,5 +1,5 @@
 {
-  "id": "org.freedesktop.Sdk.Extension.swift",
+  "id": "org.freedesktop.Sdk.Extension.swift4",
   "branch": "1.6",
   "runtime": "org.freedesktop.Sdk",
   "build-extension": true,
@@ -24,9 +24,9 @@
         }
       ],
       "build-commands": [
-        "./configure --prefix=/usr/lib/sdk/swift CC=clang",
+        "./configure --prefix=/usr/lib/sdk/swift4 CC=clang",
         "make -j3",
-        "install -Dm 755 src/.libs/libedit.so.0.0.56 /usr/lib/sdk/swift/flatpak/libedit.so.2"
+        "install -Dm 755 src/.libs/libedit.so.0.0.56 /usr/lib/sdk/swift4/flatpak/libedit.so.2"
       ]
     },
     {
@@ -42,7 +42,7 @@
       "build-commands": [
         "./configure CC=clang CXX=clang++",
         "make",
-        "install -Dm 755 src/patchelf /usr/lib/sdk/swift/flatpak/patchelf"
+        "install -Dm 755 src/patchelf /usr/lib/sdk/swift4/flatpak/patchelf"
       ]
     },
     {
@@ -58,7 +58,7 @@
       "build-commands": [
         "./configure CC=clang --disable-static",
         "make",
-        "install -Dm 755 src/.libs/libbsd.so /usr/lib/sdk/swift/flatpak/libbsd.so.0"
+        "install -Dm 755 src/.libs/libbsd.so /usr/lib/sdk/swift4/flatpak/libbsd.so.0"
       ]
     },
     {
@@ -75,8 +75,7 @@
         }
       ],
       "build-commands": [
-        "install -d /usr/lib/sdk/swift/flatpak",
-        "cp -pv local/lib/*.so.* /usr/lib/sdk/swift/flatpak"
+        "install -Dm 755 local/lib/*.so.* /usr/lib/sdk/swift4/flatpak"
       ]
     },
     {
@@ -88,8 +87,8 @@
           "only-arches": [
             "x86_64"
           ],
-          "url": "https://swift.org/builds/swift-4.0.3-release/ubuntu1604/swift-4.0.3-RELEASE/swift-4.0.3-RELEASE-ubuntu16.04.tar.gz",
-          "sha256": "9adf64cabc7c02ea2d08f150b449b05e46bd42d6e542bf742b3674f5c37f0dbf"
+          "url": "https://swift.org/builds/swift-4.1-release/ubuntu1604/swift-4.1-RELEASE/swift-4.1-RELEASE-ubuntu16.04.tar.gz",
+          "sha256": "bd11d422d466dc8fc149e52c4a4a94aa56dc5f03520f482fba5cd7e58f15bbc4"
         },
         {
           "type": "archive",
@@ -99,11 +98,11 @@
       ],
       "build-commands": [
         "mkdir -p usr/flatpak",
-        "PATH=$PATH:/usr/lib/sdk/swift/flatpak ./qldv /lib/ld-linux-x86-64.so.2 usr/flatpak/ld.so",
-        "find usr/bin -type f -exec /usr/lib/sdk/swift/flatpak/patchelf --set-interpreter /usr/lib/sdk/swift/flatpak/ld.so {} ';'",
+        "PATH=$PATH:/usr/lib/sdk/swift4/flatpak ./qldv /lib/ld-linux-x86-64.so.2 usr/flatpak/ld.so",
+        "find usr/bin -type f -not -name liblldb-intel-mpxtable.so -exec /usr/lib/sdk/swift4/flatpak/patchelf --set-interpreter /usr/lib/sdk/swift4/flatpak/ld.so {} ';'",
         "sed -i 's|x86_64-linux-gnu/||' usr/lib/swift/linux/x86_64/glibc.modulemap",
-        "install -d /usr/lib/sdk/swift",
-        "cp -rpv usr/* /usr/lib/sdk/swift"
+        "install -d /usr/lib/sdk/swift4",
+        "cp -rpv usr/* /usr/lib/sdk/swift4"
       ]
     },
     {
@@ -114,7 +113,7 @@
           "commands": [
             "dir=\"`dirname \"$0\"`\"",
             "/usr/bin/clang++ \"$@\" && \\",
-            "/usr/lib/sdk/swift/flatpak/patchelf --set-interpreter /usr/lib/sdk/swift/flatpak/ld.so \"${@: -1}\""
+            "/usr/lib/sdk/swift4/flatpak/patchelf --set-interpreter /usr/lib/sdk/swift4/flatpak/ld.so \"${@: -1}\""
           ],
           "dest-filename": "clang-wrapper.sh"
         },
@@ -125,8 +124,8 @@
         {
           "type": "script",
           "commands": [
-            "export PATH=$PATH:/usr/lib/sdk/swift/bin",
-            "export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/usr/lib/sdk/swift/flatpak"
+            "export PATH=$PATH:/usr/lib/sdk/swift4/bin",
+            "export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/usr/lib/sdk/swift4/flatpak"
           ],
           "dest-filename": "enable.sh"
         }
@@ -134,9 +133,9 @@
       "buildsystem": "simple",
       "build-commands": [
         "sed -i 's|/bin/sh|/bin/bash|' clang-wrapper.sh",
-        "install -Dm 755 clang-wrapper.sh /usr/lib/sdk/swift/bin/clang++",
-        "install -Dm 755 enable.sh /usr/lib/sdk/swift/",
-        "install -Dm 755 set-runtime.sh /usr/lib/sdk/swift/"
+        "install -Dm 755 clang-wrapper.sh /usr/lib/sdk/swift4/bin/clang++",
+        "install -Dm 755 enable.sh /usr/lib/sdk/swift4/",
+        "install -Dm 755 set-runtime.sh /usr/lib/sdk/swift4/"
       ]
     },
     {
@@ -144,13 +143,13 @@
       "buildsystem": "simple",
       "build-commands": [
         "mkdir -p ${FLATPAK_DEST}/share/appdata",
-        "cp org.freedesktop.Sdk.Extension.swift.appdata.xml ${FLATPAK_DEST}/share/appdata",
-        "appstream-compose  --basename=org.freedesktop.Sdk.Extension.swift --prefix=${FLATPAK_DEST} --origin=flatpak org.freedesktop.Sdk.Extension.swift"
+        "cp org.freedesktop.Sdk.Extension.swift4.appdata.xml ${FLATPAK_DEST}/share/appdata",
+        "appstream-compose  --basename=org.freedesktop.Sdk.Extension.swift4 --prefix=${FLATPAK_DEST} --origin=flatpak org.freedesktop.Sdk.Extension.swift4"
       ],
       "sources": [
         {
           "type": "file",
-          "path": "org.freedesktop.Sdk.Extension.swift.appdata.xml"
+          "path": "org.freedesktop.Sdk.Extension.swift4.appdata.xml"
         }
       ]
     }

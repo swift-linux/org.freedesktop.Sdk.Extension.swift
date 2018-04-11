@@ -1,8 +1,0 @@
-[Application]
-name=org.freedesktop.Sdk.Extension.swift.test
-runtime=org.freedesktop.Platform/x86_64/1.6
-sdk=org.freedesktop.Sdk/x86_64/1.6
-command=/app/bin/sdk-run.sh
-
-[Context]
-filesystems=host;

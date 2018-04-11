@@ -1,12 +1,12 @@
 {
-  "app-id": "org.freedesktop.Sdk.Extension.swift.example",
+  "app-id": "org.freedesktop.Sdk.Extension.swift4.live",
+  "branch": "1.6",
   "runtime": "org.freedesktop.Platform",
   "runtime-version": "1.6",
   "sdk": "org.freedesktop.Sdk",
   "sdk-extensions": [
-    "org.freedesktop.Sdk.Extension.swift"
+    "org.freedesktop.Sdk.Extension.swift4"
   ],
-  "metadata": "metadata.sdk.test",
   "command": "/app/bin/sdk-run.sh",
   "modules": [
     {
@@ -16,11 +16,11 @@
         {
           "type": "script",
           "commands": [
-            "if ! [ -d /usr/lib/sdk/swift ]; then",
+            "if ! [ -d /usr/lib/sdk/swift4 ]; then",
             "  echo 'Swift SDK is missing.'",
             "  exit 1",
             "fi",
-            ". /usr/lib/sdk/swift/enable.sh",
+            ". /usr/lib/sdk/swift4/enable.sh",
             "[ $# -eq 0 ] && exec sh -i || exec \"$@\""
           ],
           "dest-filename": "sdk-run.sh"
@@ -30,5 +30,8 @@
         "install -Dm 755 sdk-run.sh /app/bin/sdk-run.sh"
       ]
     }
+  ],
+  "finish-args": [
+    "--filesystem=host"
   ]
 }
