@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<component type="runtime">
+  <id>org.freedesktop.Sdk.Extension.swift4.live</id>
+  <metadata_license>CC0-1.0</metadata_license>
+  <name>Swift SDK live demo</name>
+  <summary>Swift compiler and tools (live demo, not sdk)</summary>
+</component>
