@@ -94,11 +94,20 @@
           "type": "archive",
           "url": "https://github.com/kirbyfan64/qldv/archive/v0.2.tar.gz",
           "sha256": "7ba604a4493d16b800287cdbd86dd8f545589c97427022b09bcccc1f4946b43e"
+        },
+        {
+          "type": "git",
+          "url": "https://github.com/apple/swift-lldb",
+          "commit": "8487f43e4b46514ddfc3c56b92c6c798cc23d16e",
+          "dest": "swift-lldb"
         }
       ],
       "build-commands": [
+        "clang -g0 -Wl,-rpath,\\$ORIGIN/../lib/swift/linux -Wl,-rpath,\\$ORIGIN/../flatpak -o usr/bin/repl_swift -ldl swift-lldb/tools/repl/swift/main.c",
+
         "mkdir -p usr/flatpak",
         "PATH=$PATH:/usr/lib/sdk/swift4/flatpak ./qldv /lib/ld-linux-x86-64.so.2 usr/flatpak/ld.so",
+        "/usr/lib/sdk/swift4/flatpak/patchelf --set-rpath '$ORIGIN:$ORIGIN/../..:$ORIGIN/../../../flatpak' usr/lib/swift/linux/libswiftCore.so",
         "find usr/bin -type f -not -name liblldb-intel-mpxtable.so -exec /usr/lib/sdk/swift4/flatpak/patchelf --set-interpreter /usr/lib/sdk/swift4/flatpak/ld.so {} ';'",
         "sed -i 's|x86_64-linux-gnu/||' usr/lib/swift/linux/x86_64/glibc.modulemap",
         "install -d /usr/lib/sdk/swift4",
