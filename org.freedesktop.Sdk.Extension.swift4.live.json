@@ -29,6 +29,20 @@
       "build-commands": [
         "install -Dm 755 sdk-run.sh /app/bin/sdk-run.sh"
       ]
+    },
+    {
+      "name": "appdata",
+      "buildsystem": "simple",
+      "build-commands": [
+        "mkdir -p ${FLATPAK_DEST}/share/appdata",
+        "cp org.freedesktop.Sdk.Extension.swift4.live.appdata.xml ${FLATPAK_DEST}/share/appdata"
+      ],
+      "sources": [
+        {
+          "type": "file",
+          "path": "org.freedesktop.Sdk.Extension.swift4.live.appdata.xml"
+        }
+      ]
     }
   ],
   "finish-args": [

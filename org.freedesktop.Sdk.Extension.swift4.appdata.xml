@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <component type="runtime">
-  <id>org.freedesktop.Sdk.Extension.swift</id>
+  <id>org.freedesktop.Sdk.Extension.swift4</id>
   <metadata_license>CC0-1.0</metadata_license>
-  <name>Swift Sdk extension</name>
-  <summary>Swift compiler and tools</summary>
+  <name>Swift SDK extension</name>
+  <summary>Swift compiler and tools (SDK extension)</summary>
 </component>
