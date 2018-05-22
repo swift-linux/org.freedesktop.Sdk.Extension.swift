@@ -1,0 +1,122 @@
+id: org.freedesktop.Sdk.Extension.swift4
+branch: 1.6
+runtime: org.freedesktop.Sdk
+runtime-version: 1.6
+sdk: org.freedesktop.Sdk
+sdk-extensions: []
+build-extension: true
+separate-locales: false
+appstream-compose: false
+cleanup:
+  - /share/info
+  - /share/man
+modules:
+  - name: libedit
+    buildsystem: simple
+    sources:
+      - type: archive
+        url: http://thrysoee.dk/editline/libedit-20170329-3.1.tar.gz
+        sha256: 91f2d90fbd2a048ff6dad7131d9a39e690fd8a8fd982a353f1333dd4017dd4be
+    build-commands:
+      - ./configure --prefix=/usr/lib/sdk/swift4 CC=clang
+      - make -j3
+      - install -Dm 755 src/.libs/libedit.so.0.0.56 /usr/lib/sdk/swift4/flatpak/libedit.so.2
+  - name: patchelf
+    buildsystem: simple
+    sources:
+      - type: archive
+        url: https://nixos.org/releases/patchelf/patchelf-0.9/patchelf-0.9.tar.gz
+        sha256: f2aa40a6148cb3b0ca807a1bf836b081793e55ec9e5540a5356d800132be7e0a
+    build-commands:
+      - ./configure CC=clang CXX=clang++
+      - make
+      - install -Dm 755 src/patchelf /usr/lib/sdk/swift4/flatpak/patchelf
+  - name: libbsd
+    buildsystem: simple
+    sources:
+      - type: archive
+        url: https://libbsd.freedesktop.org/releases/libbsd-0.8.7.tar.xz
+        sha256: f548f10e5af5a08b1e22889ce84315b1ebe41505b015c9596bad03fd13a12b31
+    build-commands:
+      - ./configure CC=clang --disable-static
+      - make
+      - install -Dm 755 src/.libs/libbsd.so /usr/lib/sdk/swift4/flatpak/libbsd.so.0
+  - name: libicu
+    buildsystem: simple
+    sources:
+      - type: archive
+        only-arches: [x86_64]
+        url: http://download.icu-project.org/files/icu4c/55.1/icu4c-55_1-RHEL6-x64.tgz
+        sha256: a4697dd49a463487bdc49359caa62e224a804f83b2623711fb88b6519e88f323
+    build-commands:
+      - install -Dm 755 local/lib/*.so.* /usr/lib/sdk/swift4/flatpak
+  - name: swift
+    buildsystem: simple
+    sources:
+      - type: archive
+        only-arches: [x86_64]
+        url: https://swift.org/builds/swift-4.1-release/ubuntu1604/swift-4.1-RELEASE/swift-4.1-RELEASE-ubuntu16.04.tar.gz
+        sha256: bd11d422d466dc8fc149e52c4a4a94aa56dc5f03520f482fba5cd7e58f15bbc4
+      - type: archive
+        url: https://github.com/kirbyfan64/qldv/archive/v0.3.tar.gz
+        sha256: 6887bbd5a647629aac0877666bc302c0dedcef0178693173471f729de4b7f8ae
+      - type: git
+        url: https://github.com/apple/swift-lldb
+        commit: 8487f43e4b46514ddfc3c56b92c6c798cc23d16e
+        dest: swift-lldb
+    build-commands:
+      - |
+          clang -g0 -Wl,-rpath,\$ORIGIN/../lib/swift/linux \
+            -Wl,-rpath,\$ORIGIN/../flatpak -o usr/bin/repl_swift -ldl \
+            swift-lldb/tools/repl/swift/main.c
+      - mkdir -p usr/flatpak
+      - |
+          PATH=$PATH:/usr/lib/sdk/swift4/flatpak \
+            ./qldv /lib/ld-linux-x86-64.so.2 usr/flatpak/ld.so
+      - |
+          /usr/lib/sdk/swift4/flatpak/patchelf --set-rpath \
+            '$ORIGIN:$ORIGIN/../..:$ORIGIN/../../../flatpak' \
+            usr/lib/swift/linux/libswiftCore.so
+      - |
+          find usr/bin -type f -not -name liblldb-intel-mpxtable.so \
+            -exec /usr/lib/sdk/swift4/flatpak/patchelf \
+              --set-interpreter /usr/lib/sdk/swift4/flatpak/ld.so \
+            {} ';'
+      - "sed -i 's|x86_64-linux-gnu/||' usr/lib/swift/linux/x86_64/glibc.modulemap"
+      - install -d /usr/lib/sdk/swift4
+      - cp -rpv usr/* /usr/lib/sdk/swift4
+  - name: scripts
+    sources:
+      - type: script
+        commands:
+          - 'dir="`dirname "$0"`"'
+          - |
+            /usr/bin/clang++ "$@" && \
+            /usr/lib/sdk/swift4/flatpak/patchelf --set-interpreter \
+              /usr/lib/sdk/swift4/flatpak/ld.so "${@: -1}"
+        dest-filename: clang-wrapper.sh
+      - type: file
+        path: set-runtime.sh
+      - type: script
+        commands:
+          - 'export PATH=$PATH:/usr/lib/sdk/swift4/bin'
+          - 'export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/usr/lib/sdk/swift4/flatpak'
+        dest-filename: enable.sh
+    buildsystem: simple
+    build-commands:
+      - "sed -i 's|/bin/sh|/bin/bash|' clang-wrapper.sh"
+      - 'install -Dm 755 clang-wrapper.sh /usr/lib/sdk/swift4/bin/clang++'
+      - 'install -Dm 755 enable.sh /usr/lib/sdk/swift4/'
+      - 'install -Dm 755 set-runtime.sh /usr/lib/sdk/swift4/'
+  - name: appdata
+    sources:
+      - type: file
+        path: org.freedesktop.Sdk.Extension.swift4.appdata.xml
+    buildsystem: simple
+    build-commands:
+      - 'mkdir -p ${FLATPAK_DEST}/share/appdata'
+      - 'cp org.freedesktop.Sdk.Extension.swift4.appdata.xml ${FLATPAK_DEST}/share/appdata'
+      - |
+        appstream-compose  --basename=org.freedesktop.Sdk.Extension.swift4 \
+          --prefix=${FLATPAK_DEST} --origin=flatpak \
+          org.freedesktop.Sdk.Extension.swift4
